@@ -7,8 +7,16 @@
 <!--Form that allows users to add Movies to database -->
 <div>
     <form method="post">
-        <label asp-for="Category">Category:</label>
-        <input asp-for="Category" /><br />
+        <div asp-validation-summary="All"></div>
+
+        <label asp-for="CategoryID">Category:</label>
+        <select asp-for="CategoryID">
+            <option value="">Select a Category</option>
+            @foreach (Category c in ViewBag.Categories)
+            {
+                <option value="@c.CategoryID">@c.CategoryName</option>
+            }
+        </select><br />
 
         <label asp-for="Title">Title:</label>
         <input asp-for="Title" /><br />

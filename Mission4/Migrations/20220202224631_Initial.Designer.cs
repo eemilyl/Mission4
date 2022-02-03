@@ -8,7 +8,7 @@ using Mission4.Models;
 namespace Mission4.Migrations
 {
     [DbContext(typeof(MovieFormContext))]
-    [Migration("20220127001641_Initial")]
+    [Migration("20220202224631_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -17,15 +17,60 @@ namespace Mission4.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.22");
 
+            modelBuilder.Entity("Mission4.Models.Category", b =>
+                {
+                    b.Property<int>("CategoryID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CategoryName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("CategoryID");
+
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoryID = 1,
+                            CategoryName = "Rom-Com"
+                        },
+                        new
+                        {
+                            CategoryID = 2,
+                            CategoryName = "Family"
+                        },
+                        new
+                        {
+                            CategoryID = 3,
+                            CategoryName = "Action"
+                        },
+                        new
+                        {
+                            CategoryID = 4,
+                            CategoryName = "Drama"
+                        },
+                        new
+                        {
+                            CategoryID = 5,
+                            CategoryName = "Horror"
+                        },
+                        new
+                        {
+                            CategoryID = 6,
+                            CategoryName = "Comedy"
+                        });
+                });
+
             modelBuilder.Entity("Mission4.Models.FormResponse", b =>
                 {
                     b.Property<int>("MovieId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("CategoryID")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Director")
                         .IsRequired()
@@ -55,13 +100,15 @@ namespace Mission4.Migrations
 
                     b.HasKey("MovieId");
 
+                    b.HasIndex("CategoryID");
+
                     b.ToTable("Responses");
 
                     b.HasData(
                         new
                         {
                             MovieId = 1,
-                            Category = "Rom-Com",
+                            CategoryID = 1,
                             Director = "Anand Tucker",
                             Edited = false,
                             LentTo = "",
@@ -73,7 +120,7 @@ namespace Mission4.Migrations
                         new
                         {
                             MovieId = 2,
-                            Category = "Family",
+                            CategoryID = 2,
                             Director = "Kenneth Branagh",
                             Edited = false,
                             LentTo = "",
@@ -85,7 +132,7 @@ namespace Mission4.Migrations
                         new
                         {
                             MovieId = 3,
-                            Category = "Rom-Com",
+                            CategoryID = 1,
                             Director = "Gil Junger",
                             Edited = false,
                             LentTo = "",
@@ -94,6 +141,15 @@ namespace Mission4.Migrations
                             Title = "10 Things I Hate About You",
                             Year = "1999"
                         });
+                });
+
+            modelBuilder.Entity("Mission4.Models.FormResponse", b =>
+                {
+                    b.HasOne("Mission4.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

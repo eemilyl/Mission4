@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Mission4.Models;
 using System;
@@ -11,13 +12,11 @@ namespace Mission4.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private MovieFormContext blahContext { get; set; }
+        private MovieFormContext MaContext { get; set; }
 
-        public HomeController(ILogger<HomeController> logger, MovieFormContext someName)
+        public HomeController(MovieFormContext someName)
         {
-            _logger = logger;
-            blahContext = someName;
+            MaContext = someName;
         }
 
         public IActionResult Index()
@@ -28,29 +27,67 @@ namespace Mission4.Controllers
         [HttpGet]
         public IActionResult MovieForm()
         {
+            ViewBag.Categories =  MaContext.Categories.ToList();
+
             return View();
         }
         [HttpPost]
-
         public IActionResult MovieForm(FormResponse fr)
         {
-            blahContext.Add(fr);
-            blahContext.SaveChanges();
-            return View();
+            if (ModelState.IsValid)
+            {
+                MaContext.Add(fr);
+                MaContext.SaveChanges();
+                return RedirectToAction("MovieList");
+
+            }
+             else
+            {
+                ViewBag.Categories = MaContext.Categories.ToList();
+                return View();
+            }
         }
         public IActionResult MyPodcasts()
         {
             return View();
         }
-        public IActionResult Privacy()
-        {
-            return View();
-        }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult MovieList ()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var movies = MaContext.Responses
+                .Include(x => x.Category)
+                .ToList();
+            return View(movies);
+        }
+        [HttpGet]
+        public IActionResult Edit (int movieid)
+        {
+            ViewBag.Categories = MaContext.Categories.ToList();
+            var movie = MaContext.Responses.Single(x => x.MovieId == movieid);
+            return View("MovieForm", movie);
+        }
+        [HttpPost]
+        public IActionResult Edit (FormResponse fr)
+        {
+                
+                MaContext.Update(fr);
+                MaContext.SaveChanges();
+                return RedirectToAction("MovieList");
+           
+        }
+        [HttpGet]
+        public IActionResult Delete (int movieid)
+        {
+            var movie = MaContext.Responses.Single(x => x.MovieId == movieid);
+            return View(movie);
+        }
+        [HttpPost]
+        public IActionResult Delete (FormResponse fr)
+        {
+            MaContext.Responses.Remove(fr);
+            MaContext.SaveChanges();
+            return RedirectToAction("MovieList");
+            
         }
     }
 }
